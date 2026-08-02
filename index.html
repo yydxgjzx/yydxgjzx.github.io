@@ -10749,9 +10749,10 @@ const DASHBOARD = {
         "xjGuazhang": 208.492867,
         "xjRemain": 164.176348,
         "xjRate": 0.559458250395059,
-        "totalAmount": 386.073486,
-        "totalRemain": 222.410325,
-        "totalRate": 2.9235432300000004
+        "monthTarget": 386.073486,
+        "totalAmount": 222.410325,
+        "totalRemain": 292.354323,
+        "totalRate": 0.43206215862749
       },
       {
         "name": "刘益锴",
@@ -10764,9 +10765,10 @@ const DASHBOARD = {
         "xjGuazhang": 628.286762,
         "xjRemain": 146.193227,
         "xjRate": 0.811236921448722,
-        "totalAmount": 684.5327205,
-        "totalRemain": 645.354933,
-        "totalRate": 2.6735536100000004
+        "monthTarget": 684.5327205,
+        "totalAmount": 645.354933,
+        "totalRemain": 267.355361,
+        "totalRate": 0.707075330740162
       },
       {
         "name": "孙志祥",
@@ -10779,9 +10781,10 @@ const DASHBOARD = {
         "xjGuazhang": 252.519654,
         "xjRemain": 246.888936,
         "xjRate": 0.505637386012924,
-        "totalAmount": 803.3330625,
-        "totalRemain": 283.780719,
-        "totalRate": 7.873300309999999
+        "monthTarget": 803.3330625,
+        "totalAmount": 283.780719,
+        "totalRemain": 787.330031,
+        "totalRate": 0.264940594611715
       },
       {
         "name": "曹毅",
@@ -10794,9 +10797,10 @@ const DASHBOARD = {
         "xjGuazhang": 3118.796581,
         "xjRemain": 1371.301832,
         "xjRate": 0.694594259219414,
-        "totalAmount": 3899.650041,
-        "totalRemain": 3171.262252,
-        "totalRate": 20.28271136
+        "monthTarget": 3899.650041,
+        "totalAmount": 3171.262252,
+        "totalRemain": 2028.271136,
+        "totalRate": 0.609912854741726
       },
       {
         "name": "李力",
@@ -10809,9 +10813,10 @@ const DASHBOARD = {
         "xjGuazhang": 1044.65112,
         "xjRemain": 320.065151,
         "xjRate": 0.765471286741917,
-        "totalAmount": 1123.86442875,
-        "totalRemain": 1112.214185,
-        "totalRate": 3.8627172
+        "monthTarget": 1123.86442875,
+        "totalAmount": 1112.214185,
+        "totalRemain": 386.27172,
+        "totalRate": 0.742225323100387
       },
       {
         "name": "蒋志昭",
@@ -10824,9 +10829,10 @@ const DASHBOARD = {
         "xjGuazhang": 276.43553,
         "xjRemain": 1103.275848,
         "xjRate": 0.200357505495617,
-        "totalAmount": 1149.66147525,
-        "totalRemain": 356.769049,
-        "totalRate": 11.761129180000001
+        "monthTarget": 1149.66147525,
+        "totalAmount": 356.769049,
+        "totalRemain": 1176.112918,
+        "totalRate": 0.232743979432566
       },
       {
         "name": "陈凌",
@@ -10839,9 +10845,10 @@ const DASHBOARD = {
         "xjGuazhang": 157.943385,
         "xjRemain": 293.580268,
         "xjRate": 0.349800910651296,
-        "totalAmount": 486.0563955,
-        "totalRemain": 293.517202,
-        "totalRate": 3.54557992
+        "monthTarget": 486.0563955,
+        "totalAmount": 293.517202,
+        "totalRemain": 354.557992,
+        "totalRate": 0.452906089783156
       }
     ],
     "mgrTotal": {
@@ -10854,9 +10861,10 @@ const DASHBOARD = {
       "xjGuazhang": 5687.125899,
       "xjRemain": 3645.48161,
       "xjRate": 0.609382307518618,
-      "totalAmount": 8533.1716095,
-      "totalRemain": 6085.308665,
-      "totalRate": 52.922534809999995
+      "monthTarget": 8533.1716095,
+      "totalAmount": 6085.308665,
+      "totalRemain": 5292.253481,
+      "totalRate": 0.5348517184008
     }
   },
   "zg": {
@@ -11397,6 +11405,7 @@ function renderGuazhang() {
         <th>工程管理员</th>
         <th>结转项目</th><th class="amount-col">结转挂账额(万)</th><th class="amount-col">结转剩余(万)</th><th class="rate-col">结转挂账率</th>
         <th>新建项目</th><th class="amount-col">新建总额(万)</th><th class="amount-col">新建挂账额(万)</th><th class="amount-col">新建剩余(万)</th><th class="rate-col">新建挂账率</th>
+        <th class="amount-col">8月总挂账任务(万)</th>
         <th class="amount-col">总挂账额(万)</th><th class="amount-col">总剩余(万)</th><th class="rate-col">总挂账率</th>
         <th>排名</th>
       </tr></thead><tbody id="gz-table-body"></tbody></table>
@@ -11424,6 +11433,7 @@ function renderGuazhang() {
       <td class="amount-col num">${item.xjGuazhang.toFixed(0)}</td>
       <td class="amount-col num">${item.xjRemain.toFixed(0)}</td>
       <td class="rate-col num ${rateClass(item.xjRate,0.85,0.7)}">${pct(item.xjRate)}</td>
+      <td class="amount-col num">${(item.monthTarget||0).toFixed(0)}</td>
       <td class="amount-col num">${item.totalAmount.toFixed(0)}</td>
       <td class="amount-col num">${item.totalRemain.toFixed(0)}</td>
       <td class="rate-col num ${rateClass(item.totalRate,0.85,0.7)}">${pct(item.totalRate)}</td>
@@ -11449,6 +11459,7 @@ function renderGuazhang() {
     <td class="amount-col num">${gzTotalXjGuazhang.toFixed(0)}</td>
     <td class="amount-col num">${gzTotalXjRemain.toFixed(0)}</td>
     <td class="rate-col num">${pct(gzTotalXjRate)}</td>
+    <td class="amount-col num">${(d.mgrTotal.monthTarget||0).toFixed(0)}</td>
     <td class="amount-col num">${totalAmount.toFixed(0)}</td>
     <td class="amount-col num">${totalRemain.toFixed(0)}</td>
     <td class="rate-col num">${pct(totalRate)}</td>

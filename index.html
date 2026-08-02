@@ -11394,7 +11394,7 @@ function renderGuazhang() {
   bar.innerHTML = `
     <div class="kpi-item"><div class="kpi-dot blue"></div><div class="kpi-text"><div class="kpi-label">挂账工程</div><div class="kpi-value blue num">${totalJzCount+totalXjCount}</div></div></div>
     <div class="kpi-item"><div class="kpi-dot purple"></div><div class="kpi-text"><div class="kpi-label">总挂账额(万)</div><div class="kpi-value purple num">${totalAmount.toFixed(0)}</div></div></div>
-    <div class="kpi-item"><div class="kpi-dot red"></div><div class="kpi-text"><div class="kpi-label">剩余挂账(万)</div><div class="kpi-value red num">${totalRemain.toFixed(0)}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot red"></div><div class="kpi-text"><div class="kpi-label">还需挂账(万)</div><div class="kpi-value red num">${totalRemain.toFixed(0)}</div></div></div>
     <div class="kpi-item"><div class="kpi-dot orange"></div><div class="kpi-text"><div class="kpi-label">挂账率</div><div class="kpi-value orange num">${pct(totalRate)}</div></div></div>
   `;
   
@@ -11406,13 +11406,13 @@ function renderGuazhang() {
         <th>结转项目</th><th class="amount-col">结转挂账额(万)</th><th class="amount-col">结转剩余(万)</th><th class="rate-col">结转挂账率</th>
         <th>新建项目</th><th class="amount-col">新建总额(万)</th><th class="amount-col">新建挂账额(万)</th><th class="amount-col">新建剩余(万)</th><th class="rate-col">新建挂账率</th>
         <th class="amount-col">8月总挂账任务(万)</th>
-        <th class="amount-col">总挂账额(万)</th><th class="amount-col">总剩余(万)</th><th class="rate-col">总挂账率</th>
+        <th class="amount-col">总挂账额(万)</th><th class="amount-col">还需挂账额(万)</th><th class="rate-col">总挂账率</th>
         <th>排名</th>
       </tr></thead><tbody id="gz-table-body"></tbody></table>
     </div>
     <div class="chart-row">
       <div class="chart-card"><h3>挂账率排名</h3><canvas id="gz-rate-bar"></canvas></div>
-      <div class="chart-card"><h3>剩余挂账(万)</h3><canvas id="gz-remain-bar"></canvas></div>
+      <div class="chart-card"><h3>还需挂账额(万)</h3><canvas id="gz-remain-bar"></canvas></div>
       <div class="chart-card"><h3>结转vs新建</h3><canvas id="gz-compare-bar"></canvas></div>
     </div>
   `;

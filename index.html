@@ -11370,8 +11370,8 @@ function renderAcceptTab(tab, acceptTarget, closeTarget, showOverdue) {
   makeRadar(tab+'-radar', radarSorted.map(i=>i.name), radarSorted.map(i=>i.acceptRate), radarSorted.map(i=>i.closeRate), null, null, radarMax);
 }
 
-function renderJiezhuan() { renderAcceptTab('jz', 0.95, 0.825, true); }
-function renderXinjian() { renderAcceptTab('xj', 0.15, 0.05, false); }
+function renderJiezhuan() { renderAcceptTab('jz', 1.00, 0.90, true); }
+function renderXinjian() { renderAcceptTab('xj', 0.25, 0.15, false); }
 
 function renderGuazhang() {
   const d = DASHBOARD.gz;

@@ -11372,11 +11372,11 @@ function renderAcceptTab(tab, acceptTarget, closeTarget, showOverdue) {
     makeOverdueBar(tab+'-overdue-bar', sorted.map(i=>i.name), sorted.map(i=>i.acceptOverdue), sorted.map(i=>i.closeOverdue));
   }
   // Radar: sort by acceptRate descending so highest acceptance is at top (outermost)
+  const radarSorted = [...sorted].sort((a,b)=>b.acceptRate-a.acceptRate);
   // Dynamic max: ensure grid covers all data points with 15% headroom
   const allRates = radarSorted.flatMap(i => [i.acceptRate * 100, i.closeRate * 100]);
   const dataMax = Math.max(...allRates, 0);
   const radarMax = isJz ? 100 : Math.max(30, Math.ceil((dataMax * 1.15) / 10) * 10);
-  const radarSorted = [...sorted].sort((a,b)=>b.acceptRate-a.acceptRate);
   makeRadar(tab+'-radar', radarSorted.map(i=>i.name), radarSorted.map(i=>i.acceptRate), radarSorted.map(i=>i.closeRate), null, null, radarMax);
 }
 

@@ -1,4 +1,207 @@
-{
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云网工程综合进度看板</title>
+<script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>if(typeof Chart==='undefined'){document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></scr'+'ipt>')}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#1e293b;color:#e2e8f0;min-height:100vh;-webkit-font-smoothing:antialiased}
+.num{font-family:'DIN Alternate','Helvetica Neue','Roboto','PingFang SC',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.top-tabs{display:flex;background:#0f172a;border-bottom:2px solid #334155;padding:0;position:sticky;top:0;z-index:100}
+.top-tab{flex:1;padding:12px 16px;text-align:center;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.top-tab:hover{color:#e2e8f0;background:#1e293b}
+.top-tab.active{color:#60a5fa;border-bottom-color:#60a5fa;background:#1e293b}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.header{background:linear-gradient(135deg,#1e40af 0%,#0e7490 100%);color:#f1f5f9;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,.3);border-bottom:1px solid #334155}
+.header h1{font-size:18px;font-weight:700;letter-spacing:1.5px}
+.header .subtitle{font-size:11px;opacity:.85;margin-top:2px;color:#cbd5e1}
+.header .date-badge{background:rgba(255,255,255,.15);border-radius:20px;padding:5px 16px;font-size:12px;color:#f1f5f9;border:1px solid rgba(255,255,255,.2)}
+.summary-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:8px 20px;background:#334155;box-shadow:0 2px 12px rgba(0,0,0,.2);flex-wrap:wrap;border-bottom:1px solid #475569}
+.kpi-item{display:flex;align-items:center;gap:8px;padding:4px 16px;border-right:1px solid #475569;flex-shrink:0}
+.kpi-item:last-child{border-right:none}
+.kpi-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
+.kpi-dot.blue{background:#60a5fa;color:#60a5fa}
+.kpi-dot.green{background:#4ade80;color:#4ade80}
+.kpi-dot.orange{background:#fb923c;color:#fb923c}
+.kpi-dot.red{background:#f87171;color:#f87171}
+.kpi-dot.purple{background:#a78bfa;color:#a78bfa}
+.kpi-dot.cyan{background:#22d3ee;color:#22d3ee}
+.kpi-text{display:flex;flex-direction:column;gap:0}
+.kpi-label{font-size:11px;color:#e2e8f0;line-height:1.2}
+.kpi-value{font-size:22px;font-weight:700;line-height:1.2;letter-spacing:-.03em}
+.kpi-item .kpi-value.blue{color:#93c5fd}
+.kpi-item .kpi-value.green{color:#86efac}
+.kpi-item .kpi-value.orange{color:#fdba74}
+.kpi-item .kpi-value.red{color:#f87171;font-size:24px}
+.kpi-item .kpi-value.purple{color:#c4b5fd}
+.kpi-item .kpi-value.cyan{color:#67e8f9}
+.kpi-sub{font-size:10px;color:#cbd5e1;font-weight:500}
+.ring-in-kpi{gap:6px!important;padding:4px 12px!important}
+.ring-in-kpi canvas{width:40px!important;height:40px!important}
+.ring-row{display:flex;gap:0;padding:0 12px;align-items:center}
+.ring-mini{display:flex;align-items:center;gap:8px;padding:4px 12px;border-right:1px solid #475569}
+.ring-mini:last-child{border-right:none}
+.ring-mini canvas{width:50px!important;height:50px!important}
+.ring-mini-info{display:flex;flex-direction:column;gap:1px}
+.ring-mini-title{font-size:10px;color:#cbd5e1}
+.ring-mini-pct{font-size:18px;font-weight:700;line-height:1;letter-spacing:-.03em}
+.ring-mini-pct.accept{color:#bae6fd}
+.ring-mini-pct.close{color:#bbf7d0}
+.ring-mini-target{font-size:10px;color:#cbd5e1}
+.ring-mini-target em{color:#ef4444;font-style:normal;font-weight:600}
+.content-section{padding:12px 20px 20px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;justify-content:center}
+.tab-btn{padding:6px 18px;border-radius:8px;border:1px solid #475569;font-size:13px;cursor:pointer;background:#334155;color:#94a3b8;font-weight:500;transition:all .2s}
+.tab-btn:hover{background:#475569;color:#e2e8f0}
+.tab-btn.active{background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#f1f5f9;box-shadow:0 4px 16px rgba(37,99,235,.4);border-color:transparent}
+.panel{display:none}
+.panel.active{display:block}
+.chart-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.chart-card{background:#334155;border-radius:10px;padding:14px;box-shadow:0 2px 12px rgba(0,0,0,.25);border:1px solid #475569}
+.chart-card h3{font-size:12px;font-weight:600;margin-bottom:10px;color:#e2e8f0;display:flex;align-items:center;gap:6px}
+.chart-card h3::before{content:'';display:inline-block;width:3px;height:12px;border-radius:2px;background:#60a5fa;flex-shrink:0}
+.chart-card canvas{max-height:180px}
+.table-card{background:#334155;border-radius:10px;padding:12px 14px;box-shadow:0 2px 12px rgba(0,0,0,.25);margin-bottom:10px;overflow-x:auto;border:1px solid #475569;display:flex;flex-direction:column}
+.table-card table{flex:1}
+.table-card h3{font-size:12px;font-weight:600;margin-bottom:10px;color:#e2e8f0;display:flex;align-items:center;gap:6px}
+.table-card h3::before{content:'';display:inline-block;width:3px;height:12px;border-radius:2px;background:#60a5fa;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+thead tr{background:linear-gradient(135deg,#1e40af,#1d4ed8)}
+th{padding:7px 8px;text-align:center;font-weight:600;color:#f1f5f9;white-space:nowrap;font-size:11px;letter-spacing:.3px}
+th.accept-col{background:rgba(96,165,250,.25)}
+th.close-col{background:rgba(74,222,128,.2)}
+th.amount-col{background:rgba(167,139,250,.2)}
+th.rate-col{background:rgba(251,191,36,.15)}
+tbody tr:nth-child(odd) td{background:#374151}
+tbody tr:nth-child(even) td{background:#334155}
+tbody tr:hover td{background:#3f4d63;transition:background .15s}
+td.accept-col{background:rgba(96,165,250,.10)}
+tbody tr:hover td.accept-col{background:rgba(96,165,250,.20)}
+td.close-col{background:rgba(74,222,128,.10)}
+tbody tr:hover td.close-col{background:rgba(74,222,128,.20)}
+td.amount-col{background:rgba(167,139,250,.08)}
+tbody tr:hover td.amount-col{background:rgba(167,139,250,.15)}
+td{padding:6px 8px;text-align:center;border-bottom:1px solid #475569;color:#cbd5e1;font-size:12px}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700}
+.rank-1{background:linear-gradient(135deg,#34d399,#059669);color:#fff;box-shadow:0 2px 8px rgba(52,211,153,.5)}
+.rank-2{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;box-shadow:0 2px 8px rgba(52,211,153,.4)}
+.rank-3{background:linear-gradient(135deg,#6ee7b7,#059669);color:#fff;box-shadow:0 2px 8px rgba(52,211,153,.4)}
+.rank-bottom{background:linear-gradient(135deg,#f87171,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(248,113,113,.5)}
+.rank-other{background:#475569;color:#94a3b8}
+.progress-bar-cell{min-width:60px;text-align:center}
+.progress-bar-wrap{background:#475569;border-radius:3px;height:6px;overflow:hidden;margin-bottom:2px}
+.progress-bar-fill{height:6px;border-radius:3px;transition:width .6s ease}
+.pct-text{font-size:10px;color:#94a3b8;font-weight:600;letter-spacing:-.02em}
+.over-target{color:#f87171;font-weight:700}
+.need-more{color:#fb923c;font-weight:600}
+.on-track{color:#4ade80;font-weight:600}
+.month-val{color:#fbbf24;font-weight:600}
+.overdue-val{color:#f87171;font-weight:700}
+.overdue-zero{color:#64748b}
+.total-row td{background:linear-gradient(90deg,#1e3a5f,#334155)!important;font-weight:700;color:#7dd3fc}
+.zg-top-row td{background:rgba(52,211,153,.10)!important;border-left:3px solid #34d399}
+.zg-bottom-row td{background:rgba(248,113,113,.10)!important;border-left:3px solid #f87171}
+.table-radar-row{display:grid;grid-template-columns:1fr 340px;gap:10px;margin-bottom:10px;align-items:stretch}
+.table-radar-row>.table-card,.table-radar-row>.chart-card{height:100%}
+.table-wide table{width:100%}
+.table-wide td:first-child,.table-wide th:first-child{min-width:80px;max-width:none;text-align:center;white-space:normal;word-break:keep-all}
+.radar-side canvas{flex:1;max-height:100%!important;min-height:260px}
+.footer{text-align:center;color:#475569;font-size:11px;padding:12px}
+canvas{filter:brightness(1)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex;align-items:center;justify-content:center}
+.modal-box{background:#1e293b;border:1px solid #475569;border-radius:12px;width:90%;max-width:1000px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #334155;flex-shrink:0}
+.modal-header h3{font-size:15px;font-weight:700;color:#e2e8f0}
+.modal-header .modal-count{font-size:12px;color:#64748b;margin-left:10px}
+.modal-close{background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:.2s}
+.modal-close:hover{background:#334155;color:#e2e8f0}
+.modal-export{background:rgba(74,222,128,.15);border:1px solid #4ade80;color:#4ade80;font-size:12px;cursor:pointer;padding:4px 12px;border-radius:6px;transition:.2s;margin-right:8px}
+.modal-export:hover{background:#4ade80;color:#0f172a}
+.modal-body{overflow-y:auto;padding:0}
+.modal-table{width:100%;border-collapse:collapse;font-size:12px}
+.modal-table th{position:sticky;top:0;background:#334155;color:#94a3b8;padding:6px 10px;text-align:left;font-weight:600;border-bottom:1px solid #475569;white-space:nowrap;font-size:11px}
+.modal-table td{padding:5px 10px;border-bottom:1px solid #2d3748;color:#cbd5e1;vertical-align:middle;font-size:12px}
+.modal-table tr:hover td{background:rgba(96,165,250,.06)}
+.modal-table .code-col{font-family:monospace;font-size:11px;color:#64748b}
+.modal-table .name-col{max-width:360px;white-space:normal;word-break:break-all}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.status-open{background:rgba(251,191,36,.15);color:#fbbf24}
+.status-accept{background:rgba(96,165,250,.15);color:#93c5fd}
+.status-close{background:rgba(74,222,128,.15);color:#4ade80}
+.status-other{background:rgba(100,116,139,.15);color:#94a3b8}
+.clickable{cursor:pointer;transition:.15s}
+.clickable:hover{color:#60a5fa!important;text-decoration:underline}
+.amount-positive{color:#f87171}
+.amount-negative{color:#4ade80}
+.rate-high{color:#4ade80;font-weight:700}
+.rate-mid{color:#fbbf24;font-weight:600}
+.rate-low{color:#f87171;font-weight:700}
+/* 新建Tab字体放大 */
+#panel-xj th{font-size:12px;padding:8px 10px}
+#panel-xj td{font-size:13px;padding:7px 10px}
+#panel-xj .kpi-label{font-size:12px}
+#panel-xj .kpi-value{font-size:24px}
+#panel-xj .kpi-sub{font-size:11px}
+#panel-xj .pct-text{font-size:11px}
+#panel-xj .chart-card h3{font-size:13px}
+#panel-xj .tab-btn{font-size:14px;padding:8px 22px}
+</style>
+</head>
+<body>
+<div class="top-tabs">
+  <div class="top-tab active" data-tab="jz" onclick="switchMainTab('jz')">结转工程进度</div>
+  <div class="top-tab" data-tab="xj" onclick="switchMainTab('xj')">新建工程进度</div>
+  <div class="top-tab" data-tab="gz" onclick="switchMainTab('gz')">工程挂账</div>
+  <div class="top-tab" data-tab="zg" onclick="switchMainTab('zg')">工程转固</div>
+</div>
+<div class="tab-panel active" id="panel-jz">
+  <div class="header"><div><h1>结转工程进度看板</h1><div class="subtitle">验收 &amp; 关闭 综合进度分析</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="summary-bar" id="jz-summary-bar"></div>
+  <div class="content-section">
+    <div class="tabs" id="jz-dim-tabs">
+      <button class="tab-btn active" onclick="switchDim('jz','mgr')">工程管理员</button>
+      <button class="tab-btn" onclick="switchDim('jz','unit')">施工单位</button>
+      <button class="tab-btn" onclick="switchDim('jz','area')">区域</button>
+    </div>
+    <div id="jz-chart-area"></div>
+  </div>
+</div>
+<div class="tab-panel" id="panel-xj">
+  <div class="header" style="background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%)"><div><h1>新建工程进度看板</h1><div class="subtitle">2026年新建工程 验收 &amp; 关闭 进度</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="summary-bar" id="xj-summary-bar"></div>
+  <div class="content-section">
+    <div class="tabs" id="xj-dim-tabs">
+      <button class="tab-btn active" onclick="switchDim('xj','mgr')">工程管理员</button>
+      <button class="tab-btn" onclick="switchDim('xj','unit')">施工单位</button>
+      <button class="tab-btn" onclick="switchDim('xj','area')">区域</button>
+    </div>
+    <div id="xj-chart-area"></div>
+  </div>
+</div>
+<div class="tab-panel" id="panel-gz">
+  <div class="header" style="background:linear-gradient(135deg,#b45309 0%,#92400e 100%)"><div><h1>工程挂账看板</h1><div class="subtitle">挂账余额 &amp; 挂账率 综合分析</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="summary-bar" id="gz-summary-bar"></div>
+  <div class="content-section"><div id="gz-chart-area"></div></div>
+</div>
+<div class="tab-panel" id="panel-zg">
+  <div class="header" style="background:linear-gradient(135deg,#047857 0%,#065f46 100%)"><div><h1>岳阳市工程转固看板</h1><div class="subtitle">转固结算 &amp; 转固率 综合分析</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="summary-bar" id="zg-summary-bar"></div>
+  <div class="content-section"><div id="zg-chart-area"></div></div>
+</div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><div><h3 id="modal-title"></h3><span class="modal-count" id="modal-count"></span></div><div><button class="modal-export" onclick="exportCSV()">导出CSV</button><button class="modal-close" onclick="closeModal()">&times;</button></div></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+<div class="footer">云网工程建设中心 | 数据更新于 2026年8月3日</div>
+<script>
+const DASHBOARD = {
   "jz": {
     "mgr": [
       {
@@ -10797,4 +11000,656 @@
       "targetAmount": 3762.9848812
     }
   }
+};
+
+// Chart.js fallback: if CDN fails, create a no-op stub so the page still shows data
+if (typeof Chart === 'undefined') {
+  window.Chart = function(){ this.destroy=function(){}; return this; };
+  Chart.register = function(){};
+  console.warn('Chart.js CDN failed - charts will be empty but data still shows');
 }
+const chartInstances = {};
+let currentDim = {jz:'mgr',xj:'mgr'};
+let currentModalProjects = [];
+
+function switchMainTab(tab) {
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.top-tab[data-tab="${tab}"]`).classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+function switchDim(tab, dim) {
+  currentDim[tab] = dim;
+  const c = document.getElementById(tab+'-dim-tabs');
+  c.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  c.querySelectorAll('.tab-btn').forEach(b => {
+    const txt = dim==='mgr'?'管理员':dim==='unit'?'单位':'区域';
+    if (b.textContent.includes(txt)) b.classList.add('active');
+  });
+  if (tab === 'jz') renderJiezhuan();
+  else if (tab === 'xj') renderXinjian();
+}
+
+function pct(v) { return v!=null?(v*100).toFixed(2)+'%':'-'; }
+function statusClass(s) {
+  if (!s) return 'status-other';
+  if (s.includes('验收已开')||s.includes('已验收')||s.includes('终验')) return 'status-accept';
+  if (s.includes('关闭')) return 'status-close';
+  return 'status-open';
+}
+function rateClass(v,high,mid) {
+  if (v==null||isNaN(v)) return '';
+  if (v>=high) return 'rate-high';
+  if (v>=mid) return 'rate-mid';
+  return 'rate-low';
+}
+function barColor(pct, target) {
+  if (pct >= target) return '#3fb950';
+  if (pct >= target - 15) return '#d29922';
+  return '#f85149';
+}
+function rankBadge(rank, total) {
+  const isBottom3 = rank > total - 3 && total > 3;
+  const cls = rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':(isBottom3?'rank-bottom':'rank-other');
+  return `<span class="rank-badge ${cls}">${rank}</span>`;
+}
+function progressBar(rate, target) {
+  const pctVal = (rate*100).toFixed(1);
+  const color = barColor(rate*100, target*100);
+  const w = Math.min(rate*100,100);
+  return `<div class="progress-bar-cell"><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${w}%;background:${color}"></div></div><div class="pct-text">${pctVal}%</div></div>`;
+}
+function needText(n) {
+  if (n > 0) return `<span class="over-target">${n.toFixed(0)}</span>`;
+  if (n === 0) return `<span class="on-track">0</span>`;
+  return `<span class="on-track">${n.toFixed(0)}</span>`;
+}
+function overdueCell(v, tab, dimField, dimVal, overdueType) {
+  if (v > 0) return `<span class="overdue-val clickable" onclick="showOverdueProjects('${tab}','${dimField}','${dimVal}','${overdueType}')">${v}</span>`;
+  return `<span class="overdue-zero">0</span>`;
+}
+function monthCell(v) {
+  if (v > 0) return `<span class="month-val">${v}</span>`;
+  return `<span style="color:#64748b">0</span>`;
+}
+
+const centerTextPlugin = {
+  id: 'centerText',
+  afterDraw(chart) {
+    const opts = chart.options.plugins.centerText;
+    if (!opts || !opts.text) return;
+    const {ctx,width,height} = chart;
+    ctx.save();
+    ctx.font = 'bold 13px "DIN Alternate",Helvetica,sans-serif';
+    ctx.fillStyle = opts.color || '#e2e8f0';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(opts.text, width/2, height/2);
+    ctx.restore();
+  }
+};
+try{Chart.register(centerTextPlugin)}catch(e){console.warn('Chart.js not loaded:',e)};
+
+function makeRingChart(id, value, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (chartInstances[id]) { chartInstances[id].destroy(); }
+  chartInstances[id] = new Chart(el, {
+    type:'doughnut',
+    data:{datasets:[{data:[Math.min(value,1)*100,Math.max(1-value,0)*100],backgroundColor:[color,'rgba(100,116,139,.2)'],borderWidth:0}]},
+    options:{cutout:'72%',responsive:false,
+      plugins:{legend:{display:false},tooltip:{enabled:false},centerText:{text:(value*100).toFixed(1)+'%',color:color}},
+      animation:{duration:800}}
+  });
+}
+
+function makeHBarChart(id, labels, values, target, colorFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (chartInstances[id]) { chartInstances[id].destroy(); }
+  const targetPlugin = {
+    id: 'targetLine_'+id,
+    afterDraw(chart) {
+      const xScale = chart.scales.x;
+      if (!xScale) return;
+      const x = xScale.getPixelForValue(target*100);
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.strokeStyle = '#f85149';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6,3]);
+      ctx.beginPath();
+      ctx.moveTo(x, chart.chartArea.top);
+      ctx.lineTo(x, chart.chartArea.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+  };
+  chartInstances[id] = new Chart(el, {
+    type:'bar',
+    data:{labels,datasets:[{data:values.map(v=>(v*100).toFixed(1)),backgroundColor:values.map(v=>colorFn(v)),borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{max:100,grid:{color:'#475569'},ticks:{color:'#94a3b8',callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:10}}}}},
+    plugins:[targetPlugin]
+  });
+}
+
+function makeOverdueBar(id, labels, d1, d2) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (chartInstances[id]) { chartInstances[id].destroy(); }
+  chartInstances[id] = new Chart(el, {
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'验收超期',data:d1,backgroundColor:'rgba(251,191,36,.7)',borderRadius:3},
+      {label:'关闭超期',data:d2,backgroundColor:'rgba(248,113,113,.7)',borderRadius:3}
+    ]},
+    options:{scales:{x:{grid:{color:'#475569'},ticks:{color:'#94a3b8'}},y:{grid:{color:'#475569'},ticks:{color:'#94a3b8',stepSize:5}}},plugins:{legend:{labels:{color:'#e2e8f0',font:{size:10}}}}}
+  });
+}
+
+function makeRadar(id, labels, d1, d2, l1, l2, maxVal) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (chartInstances[id]) { chartInstances[id].destroy(); }
+  const mx = maxVal || 100;
+  const step = mx <= 50 ? 10 : 25;
+  const pSize = mx <= 50 ? 5 : 3;
+  const lSize = mx <= 50 ? 12 : 10;
+  // d2(关闭率)先画在下层，d1(验收率)后画在上层/最外圈
+  chartInstances[id] = new Chart(el, {
+    type:'radar',
+    data:{labels,datasets:[
+      {label:l2||'关闭率',data:d2.map(v=>(v*100).toFixed(1)),borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,.15)',pointBackgroundColor:'#4ade80',pointRadius:pSize},
+      {label:l1||'验收率',data:d1.map(v=>(v*100).toFixed(1)),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.15)',pointBackgroundColor:'#60a5fa',pointRadius:pSize}
+    ]},
+    options:{scales:{r:{min:0,max:mx,ticks:{color:'#94a3b8',backdropColor:'transparent',stepSize:step,font:{size:lSize}},grid:{color:'#475569'},pointLabels:{color:'#e2e8f0',font:{size:lSize,weight:'600'}}}},plugins:{legend:{labels:{color:'#e2e8f0',font:{size:12}}}}}
+  });
+}
+
+function filterProjects(tab, field, value) {
+  const d = DASHBOARD[tab];
+  if (!d || !d.projects) return [];
+  // project array: [0=编码, 1=名称, 2=立项时间, 3=工程状态, 4=管理员, 5=区域, 6=施工单位, 7=项目类型]
+  if (field === 'mgr') {
+    if (value === null || value === undefined) return d.projects.filter(p => p[4] && p[4].trim() !== '');
+    return d.projects.filter(p => p[4] === value);
+  } else if (field === 'area') {
+    if (value === null || value === undefined) return d.projects.filter(p => p[5] && p[5].trim() !== '' && p[5] !== '其他');
+    return d.projects.filter(p => p[5] === value);
+  } else if (field === 'unit') {
+    // 施工单位可能包含多个（分号分隔），且Excel中的名称可能带数字后缀
+    // 取基础名称（去掉末尾数字）进行匹配
+    if (value === null || value === undefined) return d.projects.filter(p => p[6] && p[6].trim() !== '');
+    const baseValue = value.replace(/\d+$/, '').trim();
+    return d.projects.filter(p => {
+      if (!p[6]) return false;
+      const units = p[6].split(';').map(s=>s.trim());
+      return units.some(u => u === value || u === baseValue || u.includes(baseValue) || baseValue.includes(u));
+    });
+  }
+  return d.projects;
+}
+
+function showProjects(title, tab, field, dimValue, filterType) {
+  let projects;
+  if ((field === null || field === undefined) && (dimValue === null || dimValue === undefined)) {
+    projects = (DASHBOARD[tab] && DASHBOARD[tab].projects) ? DASHBOARD[tab].projects.slice() : [];
+  } else {
+    projects = filterProjects(tab, field, dimValue);
+  }
+  if (filterType === 'accept') {
+    projects = projects.filter(p => p[3] && (p[3].includes('终验已批复') || p[3].includes('初验已批复') || p[3] === '工程已关闭' || p[3] === '#N/A' || p[3].includes('决算')));
+  } else if (filterType === 'close') {
+    projects = projects.filter(p => p[3] && (p[3] === '工程已关闭' || p[3] === '#N/A'));
+  }
+  currentModalProjects = projects;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-count').textContent = `共 ${projects.length} 项`;
+  let h = '<table class="modal-table"><thead><tr><th>工程编码</th><th>工程名称</th><th>立项时间</th><th>工程状态</th><th>管理员</th><th>区域</th><th>施工单位</th><th>项目类型</th></tr></thead><tbody>';
+  projects.forEach(p => {
+    h += `<tr><td class="code-col">${p[0]}</td><td class="name-col">${p[1]}</td><td>${p[2]}</td><td><span class="status-badge ${statusClass(p[3])}">${p[3]||''}</span></td><td>${p[4]||''}</td><td>${p[5]||''}</td><td>${p[6]||''}</td><td>${p[7]||''}</td></tr>`;
+  });
+  h += '</tbody></table>';
+  document.getElementById('modal-body').innerHTML = h;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function showOverdueProjects(tab, dimField, dimVal, overdueType) {
+  const d = DASHBOARD[tab];
+  if (!d) return;
+  let projects = overdueType === 'accept' ? (d.acceptOverdue || []) : (d.closeOverdue || []);
+  // Filter by dimension if not null
+  if (dimField && dimVal && dimField !== 'null' && dimVal !== 'null') {
+    projects = projects.filter(p => {
+      if (dimField === 'mgr') return p[4] === dimVal;
+      if (dimField === 'area') return p[5] === dimVal;
+      if (dimField === 'unit') {
+        if (!p[6]) return false;
+        const baseValue = dimVal.replace(/\d+$/, '').trim();
+        const units = p[6].split(';').map(s=>s.trim());
+        return units.some(u => u === dimVal || u === baseValue || u.includes(baseValue) || baseValue.includes(u));
+      }
+      return true;
+    });
+  }
+  const label = overdueType === 'accept' ? '验收超期' : '关闭超期';
+  const title = dimVal && dimVal !== 'null' ? `${label} - ${dimVal}` : `${label} - 全部`;
+  currentModalProjects = projects;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-count').textContent = `共 ${projects.length} 项`;
+  let h = '<table class="modal-table"><thead><tr><th>工程编码</th><th>工程名称</th><th>立项时间</th><th>工程状态</th><th>管理员</th><th>区域</th><th>施工单位</th><th>项目类型</th></tr></thead><tbody>';
+  projects.forEach(p => {
+    h += `<tr><td class="code-col">${p[0]}</td><td class="name-col">${p[1]}</td><td>${p[2]}</td><td><span class="status-badge ${statusClass(p[3])}">${p[3]||''}</span></td><td>${p[4]||''}</td><td>${p[5]||''}</td><td>${p[6]||''}</td><td>${p[7]||''}</td></tr>`;
+  });
+  h += '</tbody></table>';
+  document.getElementById('modal-body').innerHTML = h;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+
+function renderAcceptTab(tab, acceptTarget, closeTarget, showOverdue) {
+  const d = DASHBOARD[tab];
+  const dim = currentDim[tab];
+  let items;
+  // KPI栏始终使用mgrTotal（全局总数），确保显示数字与点击弹窗的项目数一致
+  const total = d.mgrTotal;
+  if (dim === 'mgr') { items = d.mgr; }
+  else if (dim === 'unit') { items = d.unit; }
+  else { items = d.area; }
+  
+  const dimLabel = dim==='mgr'?'工程管理员':dim==='unit'?'施工单位':'区域';
+  const isJz = tab === 'jz';
+  const pfx = isJz?'结转':'新建';
+  
+  // 计算当前维度明细行的汇总值（用于合计行）
+  // 工程管理员维度使用全局mgrTotal；施工单位/区域维度使用明细行累加
+  const dimTotal = (dim === 'mgr') ? total : {
+    total: items.reduce((s,i)=>s+i.total, 0),
+    acceptCount: items.reduce((s,i)=>s+i.acceptCount, 0),
+    acceptTarget: items.reduce((s,i)=>s+i.acceptTarget, 0),
+    acceptGap: items.reduce((s,i)=>s+i.acceptGap, 0),
+    acceptOverdue: items.reduce((s,i)=>s+i.acceptOverdue, 0),
+    acceptMonth: items.reduce((s,i)=>s+i.acceptMonth, 0),
+    closeCount: items.reduce((s,i)=>s+i.closeCount, 0),
+    closeTarget: items.reduce((s,i)=>s+i.closeTarget, 0),
+    closeGap: items.reduce((s,i)=>s+i.closeGap, 0),
+    closeOverdue: items.reduce((s,i)=>s+i.closeOverdue, 0),
+    closeMonth: items.reduce((s,i)=>s+i.closeMonth, 0),
+  };
+  dimTotal.acceptRate = dimTotal.total > 0 ? dimTotal.acceptCount / dimTotal.total : 0;
+  dimTotal.closeRate = dimTotal.total > 0 ? dimTotal.closeCount / dimTotal.total : 0;
+  
+  const bar = document.getElementById(tab+'-summary-bar');
+  // Build KPI items conditionally
+  let kpiItems = `
+    <div class="kpi-item"><div class="kpi-dot blue"></div><div class="kpi-text"><div class="kpi-label">${pfx}工程</div><div class="kpi-value blue num clickable" onclick="showProjects('${pfx}工程 - 全部','${tab}',null,null)">${total.total}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot green"></div><div class="kpi-text"><div class="kpi-label">累计验收</div><div class="kpi-value green num clickable" onclick="showProjects('${pfx}工程 - 已验收','${tab}',null,null,'accept')">${total.acceptCount}</div><div class="kpi-sub">验收率 ${pct(total.acceptRate)} | 目标${acceptTarget*100}%</div></div></div>`;
+  if (showOverdue) kpiItems += `
+    <div class="kpi-item"><div class="kpi-dot orange"></div><div class="kpi-text"><div class="kpi-label">验收超期</div><div class="kpi-value orange num clickable" onclick="showOverdueProjects('${tab}',null,null,'accept')">${total.acceptOverdue}</div></div></div>`;
+  kpiItems += `
+    <div class="kpi-item"><div class="kpi-dot green"></div><div class="kpi-text"><div class="kpi-label">累计关闭</div><div class="kpi-value green num clickable" onclick="showProjects('${pfx}工程 - 已关闭','${tab}',null,null,'close')">${total.closeCount}</div><div class="kpi-sub">关闭率 ${pct(total.closeRate)} | 目标${closeTarget*100}%</div></div></div>`;
+  if (showOverdue) kpiItems += `
+    <div class="kpi-item"><div class="kpi-dot red"></div><div class="kpi-text"><div class="kpi-label">关闭超期</div><div class="kpi-value red num clickable" onclick="showOverdueProjects('${tab}',null,null,'close')">${total.closeOverdue}</div></div></div>`;
+  kpiItems += `
+    <div class="kpi-item ring-in-kpi"><canvas id="${tab}-ring-accept" width="40" height="40"></canvas><div class="kpi-text"><div class="kpi-label">验收率</div><div class="kpi-value blue num">${pct(total.acceptRate)}</div><div class="kpi-sub">目标${acceptTarget*100}%差${total.acceptGap>0?total.acceptGap:0}个</div></div></div>
+    <div class="kpi-item ring-in-kpi"><canvas id="${tab}-ring-close" width="40" height="40"></canvas><div class="kpi-text"><div class="kpi-label">关闭率</div><div class="kpi-value green num">${pct(total.closeRate)}</div><div class="kpi-sub">目标${closeTarget*100}%差${total.closeGap>0?total.closeGap:0}个</div></div></div>
+  `;
+  bar.innerHTML = kpiItems;
+  makeRingChart(tab+'-ring-accept', total.acceptRate, '#60a5fa');
+  makeRingChart(tab+'-ring-close', total.closeRate, '#4ade80');
+  
+  const area = document.getElementById(tab+'-chart-area');
+  const sorted = [...items].sort((a,b) => a.acceptRank - b.acceptRank);
+  
+  // Build table headers conditionally
+  let overdueHeaders = showOverdue ? `<th class="accept-col">超期</th>` : '';
+  let overdueCloseHeaders = showOverdue ? `<th class="close-col">超期</th>` : '';
+  // Build chart row conditionally
+  let chartRowHtml = '';
+  if (showOverdue) {
+    chartRowHtml = `
+      <div class="chart-row">
+        <div class="chart-card"><h3>验收率排名</h3><canvas id="${tab}-accept-bar"></canvas></div>
+        <div class="chart-card"><h3>关闭率排名</h3><canvas id="${tab}-close-bar"></canvas></div>
+        <div class="chart-card"><h3>超期工程分布</h3><canvas id="${tab}-overdue-bar"></canvas></div>
+      </div>`;
+  } else {
+    chartRowHtml = `
+      <div class="chart-row" style="grid-template-columns:1fr 1fr">
+        <div class="chart-card"><h3>验收率排名</h3><canvas id="${tab}-accept-bar"></canvas></div>
+        <div class="chart-card"><h3>关闭率排名</h3><canvas id="${tab}-close-bar"></canvas></div>
+      </div>`;
+  }
+  
+  area.innerHTML = `
+    <div class="table-radar-row">
+      <div class="table-card table-wide">
+        <h3>验收关闭进度明细</h3>
+        <table>
+          <thead><tr>
+            <th>${dimLabel}</th><th>工程数</th>
+            <th class="accept-col">累计验收</th><th class="accept-col">验收率</th><th class="accept-col">目标差</th>${overdueHeaders}<th class="accept-col">本月</th><th class="accept-col">验收排名</th>
+            <th class="close-col">累计关闭</th><th class="close-col">关闭率</th><th class="close-col">目标差</th>${overdueCloseHeaders}<th class="close-col">本月</th><th class="close-col">关闭排名</th>
+          </tr></thead>
+          <tbody id="${tab}-table-body"></tbody>
+        </table>
+      </div>
+      <div class="chart-card radar-side"><h3>综合雷达图</h3><canvas id="${tab}-radar"></canvas></div>
+    </div>
+    ${chartRowHtml}
+  `;
+  
+  const tbody = document.getElementById(tab+'-table-body');
+  const n = sorted.length;
+  // Compute close ranks separately
+  const closeRanked = [...items].sort((a,b)=>b.closeRate-a.closeRate);
+  const closeRankMap = {};
+  closeRanked.forEach((item,i) => { closeRankMap[item.name] = i+1; });
+  const closeN = closeRanked.length;
+  
+  tbody.innerHTML = sorted.map((item, i) => {
+    const acceptRank = i+1;
+    const closeRank = closeRankMap[item.name];
+    const dimField = dim;
+    const dimVal = item.name;
+    let acceptOverdueHtml = showOverdue ? `<td class="accept-col">${overdueCell(item.acceptOverdue, tab, dimField, dimVal, 'accept')}</td>` : '';
+    let closeOverdueHtml = showOverdue ? `<td class="close-col">${overdueCell(item.closeOverdue, tab, dimField, dimVal, 'close')}</td>` : '';
+    return `<tr>
+      <td>${item.name}</td>
+      <td class="num clickable" onclick="showProjects('${dimLabel}：${dimVal} - 全部工程','${tab}','${dimField}','${dimVal}')">${item.total}</td>
+      <td class="accept-col num clickable" onclick="showProjects('${dimLabel}：${dimVal} - 已验收','${tab}','${dimField}','${dimVal}','accept')">${item.acceptCount}</td>
+      <td class="accept-col">${progressBar(item.acceptRate, acceptTarget)}</td>
+      <td class="accept-col">${needText(item.acceptGap)}</td>
+      ${acceptOverdueHtml}
+      <td class="accept-col">${monthCell(item.acceptMonth)}</td>
+      <td class="accept-col">${rankBadge(acceptRank,n)}</td>
+      <td class="close-col num clickable" onclick="showProjects('${dimLabel}：${dimVal} - 已关闭','${tab}','${dimField}','${dimVal}','close')">${item.closeCount}</td>
+      <td class="close-col">${progressBar(item.closeRate, closeTarget)}</td>
+      <td class="close-col">${needText(item.closeGap)}</td>
+      ${closeOverdueHtml}
+      <td class="close-col">${monthCell(item.closeMonth)}</td>
+      <td class="close-col">${rankBadge(closeRank,closeN)}</td>
+    </tr>`;
+  }).join('');
+  
+  // 合计行：工程管理员维度用全局mgrTotal；施工单位/区域维度用明细累加值
+  // onclick传当前dim作为field（dimValue传null），使弹窗显示该维度有值的工程
+  const totalClickField = dim === 'mgr' ? null : `'${dim}'`;
+  const totalClickAll = `showProjects('${pfx}工程 - ${dimLabel}合计','${tab}',${totalClickField},null)`;
+  const totalClickAccept = `showProjects('${pfx}工程 - ${dimLabel}已验收合计','${tab}',${totalClickField},null,'accept')`;
+  const totalClickClose = `showProjects('${pfx}工程 - ${dimLabel}已关闭合计','${tab}',${totalClickField},null,'close')`;
+  let totalAcceptOverdueHtml = showOverdue ? `<td class="accept-col">${overdueCell(dimTotal.acceptOverdue, tab, null, null, 'accept')}</td>` : '';
+  let totalCloseOverdueHtml = showOverdue ? `<td class="close-col">${overdueCell(dimTotal.closeOverdue, tab, null, null, 'close')}</td>` : '';
+  tbody.innerHTML += `<tr class="total-row">
+    <td>合计</td><td class="num clickable" onclick="${totalClickAll}">${dimTotal.total}</td>
+    <td class="accept-col num clickable" onclick="${totalClickAccept}">${dimTotal.acceptCount}</td>
+    <td class="accept-col">${progressBar(dimTotal.acceptRate, acceptTarget)}</td>
+    <td class="accept-col">${needText(dimTotal.acceptGap)}</td>
+    ${totalAcceptOverdueHtml}
+    <td class="accept-col">${monthCell(dimTotal.acceptMonth)}</td>
+    <td class="accept-col"></td>
+    <td class="close-col num clickable" onclick="${totalClickClose}">${dimTotal.closeCount}</td>
+    <td class="close-col">${progressBar(dimTotal.closeRate, closeTarget)}</td>
+    <td class="close-col">${needText(dimTotal.closeGap)}</td>
+    ${totalCloseOverdueHtml}
+    <td class="close-col">${monthCell(dimTotal.closeMonth)}</td>
+    <td class="close-col"></td>
+  </tr>`;
+  
+  [tab+'-accept-bar',tab+'-close-bar',tab+'-overdue-bar',tab+'-radar'].forEach(id => { if(chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } });
+  
+  const aSorted = [...sorted].sort((a,b)=>a.acceptRate-b.acceptRate);
+  makeHBarChart(tab+'-accept-bar', aSorted.map(i=>i.name), aSorted.map(i=>i.acceptRate), acceptTarget, v=>barColor(v*100,acceptTarget*100));
+  
+  const cSorted = [...sorted].sort((a,b)=>a.closeRate-b.closeRate);
+  makeHBarChart(tab+'-close-bar', cSorted.map(i=>i.name), cSorted.map(i=>i.closeRate), closeTarget, v=>barColor(v*100,closeTarget*100));
+  
+  if (showOverdue) {
+    makeOverdueBar(tab+'-overdue-bar', sorted.map(i=>i.name), sorted.map(i=>i.acceptOverdue), sorted.map(i=>i.closeOverdue));
+  }
+  // Radar: sort by acceptRate descending so highest acceptance is at top (outermost)
+  const radarSorted = [...sorted].sort((a,b)=>b.acceptRate-a.acceptRate);
+  // Dynamic max: ensure grid covers all data points with 15% headroom
+  const allRates = radarSorted.flatMap(i => [i.acceptRate * 100, i.closeRate * 100]);
+  const dataMax = Math.max(...allRates, 0);
+  const radarMax = isJz ? 100 : Math.max(30, Math.ceil((dataMax * 1.15) / 10) * 10);
+  makeRadar(tab+'-radar', radarSorted.map(i=>i.name), radarSorted.map(i=>i.acceptRate), radarSorted.map(i=>i.closeRate), null, null, radarMax);
+}
+
+function renderJiezhuan() { renderAcceptTab('jz', 1.00, 0.90, true); }
+function renderXinjian() { renderAcceptTab('xj', 0.25, 0.15, false); }
+
+function renderGuazhang() {
+  const d = DASHBOARD.gz;
+  const items = d.mgr;
+  const totalJzCount = d.mgrTotal.jzCount || items.reduce((s,i)=>s+i.jzCount,0);
+  const totalXjCount = d.mgrTotal.xjCount || items.reduce((s,i)=>s+i.xjCount,0);
+  const totalAmount = d.mgrTotal.totalAmount || items.reduce((s,i)=>s+i.totalAmount,0);
+  const totalRemain = d.mgrTotal.totalRemain || items.reduce((s,i)=>s+i.totalRemain,0);
+  const totalRate = d.mgrTotal.totalRate != null ? d.mgrTotal.totalRate : (totalAmount > 0 ? (totalAmount - totalRemain)/totalAmount : 0);
+  
+  const bar = document.getElementById('gz-summary-bar');
+  bar.innerHTML = `
+    <div class="kpi-item"><div class="kpi-dot blue"></div><div class="kpi-text"><div class="kpi-label">挂账工程</div><div class="kpi-value blue num">${totalJzCount+totalXjCount}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot purple"></div><div class="kpi-text"><div class="kpi-label">总挂账额(万)</div><div class="kpi-value purple num">${totalAmount.toFixed(0)}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot red"></div><div class="kpi-text"><div class="kpi-label">8月还需挂账(万)</div><div class="kpi-value red num">${totalRemain.toFixed(0)}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot orange"></div><div class="kpi-text"><div class="kpi-label">挂账率</div><div class="kpi-value orange num">${pct(totalRate)}</div></div></div>
+  `;
+  
+  const area = document.getElementById('gz-chart-area');
+  area.innerHTML = `
+    <div class="table-card table-wide"><h3>挂账明细</h3>
+      <table><thead><tr>
+        <th>工程管理员</th>
+        <th>结转项目</th><th class="amount-col">结转挂账额(万)</th><th class="amount-col">结转剩余(万)</th><th class="rate-col">结转挂账率</th>
+        <th>新建项目</th><th class="amount-col">新建总额(万)</th><th class="amount-col">新建挂账额(万)</th><th class="amount-col">新建剩余(万)</th><th class="rate-col">新建挂账率</th>
+        <th class="amount-col">8月总挂账任务(万)</th>
+        <th class="amount-col">总挂账额(万)</th><th class="amount-col">8月还需挂账额(万)</th><th class="rate-col">总挂账率</th>
+        <th>排名</th>
+      </tr></thead><tbody id="gz-table-body"></tbody></table>
+    </div>
+    <div class="chart-row">
+      <div class="chart-card"><h3>挂账率排名</h3><canvas id="gz-rate-bar"></canvas></div>
+      <div class="chart-card"><h3>8月还需挂账额(万)</h3><canvas id="gz-remain-bar"></canvas></div>
+      <div class="chart-card"><h3>结转vs新建</h3><canvas id="gz-compare-bar"></canvas></div>
+    </div>
+  `;
+  
+  const tbody = document.getElementById('gz-table-body');
+  const sorted = [...items].sort((a,b) => b.totalRate - a.totalRate);
+  const n = sorted.length;
+  tbody.innerHTML = sorted.map((item, i) => {
+    const rank = i+1;
+    return `<tr>
+      <td>${item.name}</td>
+      <td class="num">${item.jzCount}</td>
+      <td class="amount-col num">${item.jzAmount.toFixed(0)}</td>
+      <td class="amount-col num">${item.jzRemain.toFixed(0)}</td>
+      <td class="rate-col num ${rateClass(item.jzRate,0.85,0.7)}">${pct(item.jzRate)}</td>
+      <td class="num">${item.xjCount}</td>
+      <td class="amount-col num">${item.xjAmount.toFixed(0)}</td>
+      <td class="amount-col num">${item.xjGuazhang.toFixed(0)}</td>
+      <td class="amount-col num">${item.xjRemain.toFixed(0)}</td>
+      <td class="rate-col num ${rateClass(item.xjRate,0.85,0.7)}">${pct(item.xjRate)}</td>
+      <td class="amount-col num">${(item.monthTarget||0).toFixed(0)}</td>
+      <td class="amount-col num">${item.totalAmount.toFixed(0)}</td>
+      <td class="amount-col num">${item.totalRemain.toFixed(0)}</td>
+      <td class="rate-col num ${rateClass(item.totalRate,0.85,0.7)}">${pct(item.totalRate)}</td>
+      <td>${rankBadge(rank,n)}</td>
+    </tr>`;
+  }).join('');
+  
+  const t = d.mgrTotal;
+  const gzTotalJzAmount = t.jzAmount != null ? t.jzAmount : items.reduce((s,i)=>s+i.jzAmount,0);
+  const gzTotalXjAmount = t.xjAmount != null ? t.xjAmount : items.reduce((s,i)=>s+i.xjAmount,0);
+  const gzTotalJzRemain = t.jzRemain != null ? t.jzRemain : items.reduce((s,i)=>s+i.jzRemain,0);
+  const gzTotalXjRemain = t.xjRemain != null ? t.xjRemain : items.reduce((s,i)=>s+i.xjRemain,0);
+  const gzTotalXjGuazhang = t.xjGuazhang != null ? t.xjGuazhang : items.reduce((s,i)=>s+i.xjGuazhang,0);
+  const gzTotalJzRate = t.jzRate != null ? t.jzRate : (gzTotalJzAmount + gzTotalJzRemain > 0 ? gzTotalJzAmount / (gzTotalJzAmount + gzTotalJzRemain) : 0);
+  const gzTotalXjRate = t.xjRate != null ? t.xjRate : (gzTotalXjGuazhang + gzTotalXjRemain > 0 ? gzTotalXjGuazhang / (gzTotalXjGuazhang + gzTotalXjRemain) : 0);
+  tbody.innerHTML += `<tr class="total-row">
+    <td>合计</td><td class="num">${totalJzCount}</td>
+    <td class="amount-col num">${gzTotalJzAmount.toFixed(0)}</td>
+    <td class="amount-col num">${gzTotalJzRemain.toFixed(0)}</td>
+    <td class="rate-col num">${pct(gzTotalJzRate)}</td>
+    <td class="num">${totalXjCount}</td>
+    <td class="amount-col num">${gzTotalXjAmount.toFixed(0)}</td>
+    <td class="amount-col num">${gzTotalXjGuazhang.toFixed(0)}</td>
+    <td class="amount-col num">${gzTotalXjRemain.toFixed(0)}</td>
+    <td class="rate-col num">${pct(gzTotalXjRate)}</td>
+    <td class="amount-col num">${(d.mgrTotal.monthTarget||0).toFixed(0)}</td>
+    <td class="amount-col num">${totalAmount.toFixed(0)}</td>
+    <td class="amount-col num">${totalRemain.toFixed(0)}</td>
+    <td class="rate-col num">${pct(totalRate)}</td>
+    <td></td>
+  </tr>`;
+  
+  ['gz-rate-bar','gz-remain-bar','gz-compare-bar'].forEach(id => { if(chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } });
+  
+  const rateSorted = [...items].sort((a,b)=>a.totalRate-b.totalRate);
+  chartInstances['gz-rate-bar'] = new Chart(document.getElementById('gz-rate-bar'), {
+    type:'bar',data:{labels:rateSorted.map(i=>i.name),datasets:[{data:rateSorted.map(i=>(i.totalRate*100).toFixed(1)),backgroundColor:rateSorted.map(i=>i.totalRate>=0.85?'#4ade80':i.totalRate>=0.7?'#fbbf24':'#f87171'),borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{max:100,grid:{color:'#475569'},ticks:{color:'#94a3b8',callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:11}}}}}
+  });
+  const remainSorted = [...items].sort((a,b)=>Math.abs(b.totalRemain)-Math.abs(a.totalRemain));
+  chartInstances['gz-remain-bar'] = new Chart(document.getElementById('gz-remain-bar'), {
+    type:'bar',data:{labels:remainSorted.map(i=>i.name),datasets:[{data:remainSorted.map(i=>Math.abs(i.totalRemain).toFixed(0)),backgroundColor:remainSorted.map(i=>i.totalRemain>0?'#f87171':'#4ade80'),borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#475569'},ticks:{color:'#94a3b8',callback:v=>v+'万'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:11}}}}}
+  });
+  chartInstances['gz-compare-bar'] = new Chart(document.getElementById('gz-compare-bar'), {
+    type:'bar',data:{labels:items.map(i=>i.name),datasets:[
+      {label:'结转挂账率',data:items.map(i=>(i.jzRate*100).toFixed(1)),backgroundColor:'rgba(96,165,250,.7)',borderRadius:4},
+      {label:'新建挂账率',data:items.map(i=>(i.xjRate*100).toFixed(1)),backgroundColor:'rgba(167,139,250,.7)',borderRadius:4}
+    ]},options:{indexAxis:'y',scales:{x:{max:100,grid:{color:'#475569'},ticks:{color:'#94a3b8',callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:11}}}},plugins:{legend:{labels:{color:'#e2e8f0'}}}}
+  });
+}
+
+function renderZhuangu() {
+  const d = DASHBOARD.zg;
+  const items = d.mgr;
+  const totalCount = d.mgrTotal.closedCount;
+  const totalProjectAmount = d.mgrTotal.projectAmount || 0;
+  const totalAmount = d.mgrTotal.zhuanguAmount;
+  const totalDone = d.mgrTotal.zhuanguDone;
+  const totalRemain = d.mgrTotal.zhuanguRemain;
+  const totalRate = d.mgrTotal.zhuanguRate;
+  const totalTargetAmount = d.mgrTotal.targetAmount || 0;
+  
+  const bar = document.getElementById('zg-summary-bar');
+  bar.innerHTML = `
+    <div class="kpi-item"><div class="kpi-dot blue"></div><div class="kpi-text"><div class="kpi-label">已关闭工程</div><div class="kpi-value blue num">${totalCount}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot cyan"></div><div class="kpi-text"><div class="kpi-label">项目可转固(万)</div><div class="kpi-value cyan num">${totalProjectAmount.toFixed(0)}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot purple"></div><div class="kpi-text"><div class="kpi-label">需转固(万)</div><div class="kpi-value purple num">${totalAmount.toFixed(0)}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot green"></div><div class="kpi-text"><div class="kpi-label">已转固(万)</div><div class="kpi-value green num">${totalDone.toFixed(0)}</div></div></div>
+    <div class="kpi-item"><div class="kpi-dot orange"></div><div class="kpi-text"><div class="kpi-label">转固率</div><div class="kpi-value orange num">${pct(totalRate)}</div></div></div>
+  `;
+  
+  const area = document.getElementById('zg-chart-area');
+  area.innerHTML = `
+    <div class="table-card table-wide"><h3>转固明细</h3>
+      <table><thead><tr>
+        <th>工程管理员</th><th>工程数</th>
+        <th class="amount-col">项目可转固金额(万)</th><th class="amount-col">8月转固目标金额(万)</th><th class="amount-col">已转固金额(万)</th><th class="amount-col">8月还需转固金额(万)</th><th class="rate-col">全年转固完成率</th>
+        <th>排名</th>
+      </tr></thead><tbody id="zg-table-body"></tbody></table>
+    </div>
+    <div class="chart-row" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card"><h3>转固完成率排名</h3><canvas id="zg-rate-bar"></canvas></div>
+      <div class="chart-card"><h3>转固目标金额(万)</h3><canvas id="zg-remain-bar"></canvas></div>
+    </div>
+  `;
+  
+  const tbody = document.getElementById('zg-table-body');
+  const sorted = [...items].sort((a,b) => (a.rank||99) - (b.rank||99));
+  const n = sorted.length;
+  tbody.innerHTML = sorted.map((item) => {
+    const rank = item.rank || 0;
+    const pAmt = item.projectAmount || 0;
+    const needAmt = item.zhuanguAmount || 0;
+    const tgtAmt = item.target || 0;
+    const tgtHtml = tgtAmt > 0 ? `<span class="over-target">${tgtAmt.toFixed(0)}</span>` : `<span class="on-track">${tgtAmt.toFixed(0)}</span>`;
+    return `<tr>
+      <td>${item.name}</td>
+      <td class="num">${item.closedCount}</td>
+      <td class="amount-col num">${pAmt.toFixed(0)}</td>
+      <td class="amount-col num">${needAmt.toFixed(0)}</td>
+      <td class="amount-col num">${item.zhuanguDone.toFixed(0)}</td>
+      <td class="amount-col num">${tgtHtml}</td>
+      <td class="rate-col">${progressBar(item.zhuanguRate,0.5)}</td>
+      <td>${rankBadge(rank,n)}</td>
+    </tr>`;
+  }).join('');
+  
+  tbody.innerHTML += `<tr class="total-row">
+    <td>合计</td><td class="num">${totalCount}</td>
+    <td class="amount-col num">${totalProjectAmount.toFixed(0)}</td>
+    <td class="amount-col num">${totalAmount.toFixed(0)}</td>
+    <td class="amount-col num">${totalDone.toFixed(0)}</td>
+    <td class="amount-col num">${totalTargetAmount.toFixed(0)}</td>
+    <td class="rate-col">${progressBar(totalRate,0.5)}</td>
+    <td></td>
+  </tr>`;
+  
+  ['zg-rate-bar','zg-remain-bar'].forEach(id => { if(chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } });
+  
+  const rateSorted = [...items].sort((a,b)=>a.zhuanguRate-b.zhuanguRate);
+  const zgRateCtx = document.getElementById('zg-rate-bar');
+  chartInstances['zg-rate-bar'] = new Chart(zgRateCtx, {
+    type:'bar',data:{labels:rateSorted.map(i=>i.name),datasets:[{label:'转固完成率',data:rateSorted.map(i=>(i.zhuanguRate*100).toFixed(1)),backgroundColor:rateSorted.map(i=>barColor(i.zhuanguRate*100,50)),borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{max:100,grid:{color:'#475569'},ticks:{color:'#94a3b8',callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:11}}}},
+    plugins:[{
+      id:'zgTargetLine',
+      afterDraw(chart){
+        const xScale=chart.scales.x;
+        const x=xScale.getPixelForValue(75);
+        const ctx=chart.ctx;
+        ctx.save();
+        ctx.strokeStyle='#fbbf24';
+        ctx.lineWidth=2;
+        ctx.setLineDash([6,4]);
+        ctx.beginPath();
+        ctx.moveTo(x,chart.chartArea.top);
+        ctx.lineTo(x,chart.chartArea.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle='#fbbf24';
+        ctx.font='bold 11px sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText('目标75%',x,chart.chartArea.top-4);
+        ctx.restore();
+      }
+    }]}
+  });
+  const remainSorted = [...items].sort((a,b)=>Math.abs(b.zhuanguRemain)-Math.abs(a.zhuanguRemain));
+  chartInstances['zg-remain-bar'] = new Chart(document.getElementById('zg-remain-bar'), {
+    type:'bar',data:{labels:remainSorted.map(i=>i.name),datasets:[{label:'转固目标金额(万)',data:remainSorted.map(i=>Math.abs(i.target||0).toFixed(0)),backgroundColor:remainSorted.map(i=>barColor(100-i.zhuanguRate*100,50)),borderRadius:4}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#475569'},ticks:{color:'#94a3b8',callback:v=>v+'万'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:11}}}}}
+  });
+}
+
+function exportCSV() {
+  if (!currentModalProjects.length) return;
+  const headers = ['工程编码','工程名称','立项时间','工程状态','工程管理员','区域','施工单位','项目类型'];
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  currentModalProjects.forEach(p => {
+    csv += [p[0],'"'+p[1]+'"','"'+p[2]+'"','"'+p[3]+'"','"'+p[4]+'"','"'+p[5]+'"','"'+p[6]+'"','"'+p[7]+'"'].join(',') + '\n';
+  });
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = '工程清单.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderJiezhuan();
+  renderXinjian();
+  renderGuazhang();
+  renderZhuangu();
+});
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+</script>
+</body>
+</html>

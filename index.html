@@ -196,12 +196,17 @@ canvas{filter:brightness(1)}
   .progress-bar-fill{height:5px}
   .pct-text{font-size:9px}
   .rank-badge{width:18px;height:18px;font-size:9px}
-  /* Modal: full screen on mobile */
+  /* Modal: full screen on mobile, sticky first column */
   .modal-box{width:100%;max-height:100vh;border-radius:0}
   .modal-header{padding:12px 14px}
   .modal-header h3{font-size:14px}
-  .modal-body{-webkit-overflow-scrolling:touch}
-  .modal-table{font-size:11px}
+  .modal-body{-webkit-overflow-scrolling:touch;overflow-x:auto}
+  .modal-table{font-size:11px;min-width:600px;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .modal-table thead th:first-child,.modal-table tbody td:first-child{position:sticky;left:0;z-index:2;min-width:50px;max-width:90px;white-space:normal;word-break:keep-all}
+  .modal-table thead th:first-child{background:#1e3a8a;z-index:3}
+  .modal-table tbody tr:nth-child(odd) td:first-child{background:#374151}
+  .modal-table tbody tr:nth-child(even) td:first-child{background:#334155}
+  .modal-table tbody tr:hover td:first-child{background:#3f4d63}
   .modal-table th{padding:4px 6px;font-size:10px}
   .modal-table td{padding:3px 6px;font-size:11px}
   .modal-table .name-col{max-width:140px}

@@ -69,8 +69,8 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#1e293b;c
 .chart-card h3{font-size:12px;font-weight:600;margin-bottom:10px;color:#e2e8f0;display:flex;align-items:center;gap:6px}
 .chart-card h3::before{content:'';display:inline-block;width:3px;height:12px;border-radius:2px;background:#60a5fa;flex-shrink:0}
 .chart-card canvas{max-height:180px}
-.table-card{background:#334155;border-radius:10px;padding:12px 14px;box-shadow:0 2px 12px rgba(0,0,0,.25);margin-bottom:10px;overflow-x:auto;border:1px solid #475569}
-.table-card table{width:100%}
+.table-card{background:#334155;border-radius:10px;padding:12px 14px;box-shadow:0 2px 12px rgba(0,0,0,.25);margin-bottom:10px;overflow-x:auto;border:1px solid #475569;display:flex;flex-direction:column}
+.table-card table{flex:1}
 .table-card h3{font-size:12px;font-weight:600;margin-bottom:10px;color:#e2e8f0;display:flex;align-items:center;gap:6px}
 .table-card h3::before{content:'';display:inline-block;width:3px;height:12px;border-radius:2px;background:#60a5fa;flex-shrink:0}
 table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
@@ -80,12 +80,6 @@ th.accept-col{background:rgba(96,165,250,.25)}
 th.close-col{background:rgba(74,222,128,.2)}
 th.amount-col{background:rgba(167,139,250,.2)}
 th.rate-col{background:rgba(251,191,36,.15)}
-/* Frozen first column - works on all widths */
-td:first-child,th:first-child{position:sticky;left:0;z-index:2;min-width:60px;max-width:100px;white-space:normal;word-break:keep-all;text-align:left}
-th:first-child{z-index:3}
-tbody tr:nth-child(odd) td:first-child{background:#374151}
-tbody tr:nth-child(even) td:first-child{background:#334155}
-tbody tr:hover td:first-child{background:#3f4d63}
 tbody tr:nth-child(odd) td{background:#374151}
 tbody tr:nth-child(even) td{background:#334155}
 tbody tr:hover td{background:#3f4d63;transition:background .15s}
@@ -113,7 +107,6 @@ td{padding:6px 8px;text-align:center;border-bottom:1px solid #475569;color:#cbd5
 .overdue-val{color:#f87171;font-weight:700}
 .overdue-zero{color:#64748b}
 .total-row td{background:linear-gradient(90deg,#1e3a5f,#334155)!important;font-weight:700;color:#7dd3fc}
-.total-row td:first-child{z-index:3}
 .zg-top-row td{background:rgba(52,211,153,.10)!important;border-left:3px solid #34d399}
 .zg-bottom-row td{background:rgba(248,113,113,.10)!important;border-left:3px solid #f87171}
 .table-radar-row{display:grid;grid-template-columns:1fr 340px;gap:10px;margin-bottom:10px;align-items:stretch}
@@ -184,15 +177,15 @@ canvas{filter:brightness(1)}
   .table-radar-row{grid-template-columns:1fr!important;gap:8px}
   .table-radar-row .radar-side{min-height:auto}
   /* Table: sticky first column */
-  .table-card{padding:10px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .table-card table{display:table;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-card{padding:10px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-card table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .chart-card{padding:10px}
   .chart-card canvas{max-height:160px}
   .radar-side canvas{min-height:200px!important}
   table{font-size:11px;min-width:500px}
   th{padding:5px 4px;font-size:10px}
   td{padding:4px 4px;font-size:11px}
-  td:first-child,th:first-child{position:sticky;left:0;z-index:2;min-width:60px;max-width:80px;white-space:normal;word-break:keep-all;text-align:left}
+  td:first-child,th:first-child{position:sticky;left:0;z-index:2;min-width:60px;max-width:80px;white-space:normal;word-break:keep-all}
   thead tr{position:relative}
   th:first-child{background:linear-gradient(135deg,#1e40af,#1d4ed8);z-index:3}
   tbody tr:nth-child(odd) td:first-child{background:#374151}
@@ -244,7 +237,7 @@ canvas{filter:brightness(1)}
   <div class="top-tab" data-tab="zg" onclick="switchMainTab('zg')">工程转固</div>
 </div>
 <div class="tab-panel active" id="panel-jz">
-  <div class="header"><div><h1>结转工程进度看板</h1><div class="subtitle">验收 &amp; 关闭 综合进度分析</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="header"><div><h1>结转工程进度看板</h1><div class="subtitle">验收 &amp; 关闭 综合进度分析</div></div><div class="date-badge">2026年8月4日</div></div>
   <div class="summary-bar" id="jz-summary-bar"></div>
   <div class="content-section">
     <div class="tabs" id="jz-dim-tabs">
@@ -256,7 +249,7 @@ canvas{filter:brightness(1)}
   </div>
 </div>
 <div class="tab-panel" id="panel-xj">
-  <div class="header" style="background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%)"><div><h1>新建工程进度看板</h1><div class="subtitle">2026年新建工程 验收 &amp; 关闭 进度</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="header" style="background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%)"><div><h1>新建工程进度看板</h1><div class="subtitle">2026年新建工程 验收 &amp; 关闭 进度</div></div><div class="date-badge">2026年8月4日</div></div>
   <div class="summary-bar" id="xj-summary-bar"></div>
   <div class="content-section">
     <div class="tabs" id="xj-dim-tabs">
@@ -268,12 +261,12 @@ canvas{filter:brightness(1)}
   </div>
 </div>
 <div class="tab-panel" id="panel-gz">
-  <div class="header" style="background:linear-gradient(135deg,#b45309 0%,#92400e 100%)"><div><h1>工程挂账看板</h1><div class="subtitle">挂账余额 &amp; 挂账率 综合分析</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="header" style="background:linear-gradient(135deg,#b45309 0%,#92400e 100%)"><div><h1>工程挂账看板</h1><div class="subtitle">挂账余额 &amp; 挂账率 综合分析</div></div><div class="date-badge">2026年8月4日</div></div>
   <div class="summary-bar" id="gz-summary-bar"></div>
   <div class="content-section"><div id="gz-chart-area"></div></div>
 </div>
 <div class="tab-panel" id="panel-zg">
-  <div class="header" style="background:linear-gradient(135deg,#047857 0%,#065f46 100%)"><div><h1>岳阳市工程转固看板</h1><div class="subtitle">转固结算 &amp; 转固率 综合分析</div></div><div class="date-badge">2026年8月3日</div></div>
+  <div class="header" style="background:linear-gradient(135deg,#047857 0%,#065f46 100%)"><div><h1>岳阳市工程转固看板</h1><div class="subtitle">转固结算 &amp; 转固率 综合分析</div></div><div class="date-badge">2026年8月4日</div></div>
   <div class="summary-bar" id="zg-summary-bar"></div>
   <div class="content-section"><div id="zg-chart-area"></div></div>
 </div>
@@ -283,7 +276,7 @@ canvas{filter:brightness(1)}
     <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
-<div class="footer">云网工程建设中心 | 数据更新于 2026年8月3日</div>
+<div class="footer">云网工程建设中心 | 数据更新于 2026年8月4日</div>
 <script>
 // Register Service Worker for offline caching
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
@@ -1894,7 +1887,7 @@ const DASHBOARD = {
         "25HN000988001",
         "2025年岳阳分公司岳阳县新墙马形村\u201c一村一案\u201d工程(DBXD)",
         "2025-02-26",
-        "决算审计中",
+        "竣工决算已挂起",
         "孙志祥",
         "岳阳县",
         "湖南天辰建设有限责任公司",
@@ -2624,7 +2617,7 @@ const DASHBOARD = {
         "25HN001911001",
         "2025年岳阳分公司岳阳县麻塘金垅村杆线焕新工程(GXHX)",
         "2025-03-31",
-        "决算发起中",
+        "竣工决算已挂起",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -2634,7 +2627,7 @@ const DASHBOARD = {
         "25HN001912001",
         "2025年岳阳分公司岳阳县新墙三合村杆线焕新工程(GXHX)",
         "2025-03-31",
-        "决算发起中",
+        "竣工决算已挂起",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -3524,7 +3517,7 @@ const DASHBOARD = {
         "25HN003039001",
         "2025年岳阳分公司本地县乡中继传输光缆建设工程（岳阳县RODAM传输组网安全提升之一）",
         "2025-05-22",
-        "一次性验收/终验已批复",
+        "决算发起中",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -4094,7 +4087,7 @@ const DASHBOARD = {
         "25HN003431001",
         "(DBXD)2025年岳阳分公司岳阳楼区长石桥村整村推进ODN网络优化工程",
         "2025-06-09",
-        "决算发起中",
+        "竣工决算已挂起",
         "丰中山",
         "综维中心",
         "湖南省通信建设有限公司6",
@@ -5654,7 +5647,7 @@ const DASHBOARD = {
         "25HN005937001",
         "（GXHX）2025年岳阳分公司华容县三封复兴村等地整村推进工程（26年提前启动）",
         "2025-11-11",
-        "决算发起中",
+        "竣工决算已挂起",
         "孙志祥",
         "华容县",
         "湖南天辰建设有限责任公司",
@@ -5984,7 +5977,7 @@ const DASHBOARD = {
         "25HN006525001",
         "（DBXD）2025年岳阳分公司岳阳县月田镇稻田村整村推进工程",
         "2025-12-09",
-        "一次性验收/终验已批复",
+        "决算发起中",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -6004,7 +5997,7 @@ const DASHBOARD = {
         "25HN006527001",
         "（GXHX）2025年岳阳分公司君山横山岭村等地杆线换新工程（26年提前启动）",
         "2025-12-09",
-        "工程已开工",
+        "一次性验收/终验审批中",
         "孙志祥",
         "君山区",
         "湖南天辰建设有限责任公司",
@@ -6194,7 +6187,7 @@ const DASHBOARD = {
         "25HN006633001",
         "（GXHX）2025年岳阳分公司华容县操军朝阳村等地杆线换新工程（26年提前启动）",
         "2025-12-13",
-        "一次性验收/终验已批复",
+        "决算发起中",
         "孙志祥",
         "华容县",
         "湖南天辰建设有限责任公司",
@@ -6204,7 +6197,7 @@ const DASHBOARD = {
         "25HN006634001",
         "（DBXD）2025年岳阳分公司岳阳县麻塘镇畔湖新村整村推进工程",
         "2025-12-13",
-        "一次性验收/终验已批复",
+        "决算发起中",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -7928,7 +7921,7 @@ const DASHBOARD = {
         "25HN001911001",
         "2025年岳阳分公司岳阳县麻塘金垅村杆线焕新工程(GXHX)",
         "2025-03-31",
-        "决算发起中",
+        "竣工决算已挂起",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -7938,7 +7931,7 @@ const DASHBOARD = {
         "25HN001912001",
         "2025年岳阳分公司岳阳县新墙三合村杆线焕新工程(GXHX)",
         "2025-03-31",
-        "决算发起中",
+        "竣工决算已挂起",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -7948,7 +7941,7 @@ const DASHBOARD = {
         "25HN003039001",
         "2025年岳阳分公司本地县乡中继传输光缆建设工程（岳阳县RODAM传输组网安全提升之一）",
         "2025-05-22",
-        "一次性验收/终验已批复",
+        "决算发起中",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司6",
@@ -7958,7 +7951,7 @@ const DASHBOARD = {
         "25HN003431001",
         "(DBXD)2025年岳阳分公司岳阳楼区长石桥村整村推进ODN网络优化工程",
         "2025-06-09",
-        "决算发起中",
+        "竣工决算已挂起",
         "丰中山",
         "综维中心",
         "湖南省通信建设有限公司6",
@@ -7998,7 +7991,7 @@ const DASHBOARD = {
         "25HN000988001",
         "2025年岳阳分公司岳阳县新墙马形村\u201c一村一案\u201d工程(DBXD)",
         "2025-02-26",
-        "决算审计中",
+        "竣工决算已挂起",
         "孙志祥",
         "岳阳县",
         "湖南天辰建设有限责任公司",
@@ -8168,7 +8161,7 @@ const DASHBOARD = {
         "acceptGap": 1,
         "acceptMonth": 0,
         "acceptRate": 0.205128205128205,
-        "acceptRank": 2,
+        "acceptRank": 3,
         "closeCount": 1,
         "closeTarget": 5,
         "closeGap": 4,
@@ -8181,12 +8174,12 @@ const DASHBOARD = {
       {
         "name": "孙志祥",
         "total": 35,
-        "acceptCount": 7,
+        "acceptCount": 8,
         "acceptTarget": 8,
-        "acceptGap": 1,
-        "acceptMonth": 0,
-        "acceptRate": 0.2,
-        "acceptRank": 3,
+        "acceptGap": 0,
+        "acceptMonth": 1,
+        "acceptRate": 0.228571428571429,
+        "acceptRank": 2,
         "closeCount": 1,
         "closeTarget": 5,
         "closeGap": 4,
@@ -8218,11 +8211,11 @@ const DASHBOARD = {
     "mgrTotal": {
       "name": "合计",
       "total": 233,
-      "acceptCount": 28,
+      "acceptCount": 29,
       "acceptTarget": 58,
-      "acceptGap": 30,
-      "acceptMonth": 0,
-      "acceptRate": 0.120171673819742,
+      "acceptGap": 29,
+      "acceptMonth": 1,
+      "acceptRate": 0.124463519313305,
       "acceptRank": 0,
       "closeCount": 11,
       "closeTarget": 34,
@@ -8237,11 +8230,11 @@ const DASHBOARD = {
       {
         "name": "湖南省通信建设有限公司",
         "total": 74,
-        "acceptCount": 14,
+        "acceptCount": 15,
         "acceptTarget": 18,
-        "acceptGap": 4,
-        "acceptMonth": 0,
-        "acceptRate": 0.189189189189189,
+        "acceptGap": 3,
+        "acceptMonth": 1,
+        "acceptRate": 0.202702702702703,
         "acceptRank": 1,
         "closeCount": 1,
         "closeTarget": 11,
@@ -8292,11 +8285,11 @@ const DASHBOARD = {
     "unitTotal": {
       "name": "合计",
       "total": 174,
-      "acceptCount": 22,
+      "acceptCount": 23,
       "acceptTarget": 43,
-      "acceptGap": 21,
-      "acceptMonth": 0,
-      "acceptRate": 0.126436781609195,
+      "acceptGap": 20,
+      "acceptMonth": 1,
+      "acceptRate": 0.132183908045977,
       "acceptRank": 0,
       "closeCount": 5,
       "closeTarget": 26,
@@ -8401,11 +8394,11 @@ const DASHBOARD = {
       {
         "name": "岳阳县",
         "total": 16,
-        "acceptCount": 7,
+        "acceptCount": 8,
         "acceptTarget": 4,
-        "acceptGap": -3,
-        "acceptMonth": 0,
-        "acceptRate": 0.4375,
+        "acceptGap": -4,
+        "acceptMonth": 1,
+        "acceptRate": 0.5,
         "acceptRank": 1,
         "closeCount": 1,
         "closeTarget": 2,
@@ -8510,11 +8503,11 @@ const DASHBOARD = {
     "areaTotal": {
       "name": "合计",
       "total": 234,
-      "acceptCount": 28,
+      "acceptCount": 29,
       "acceptTarget": 58,
-      "acceptGap": 30,
-      "acceptMonth": 8,
-      "acceptRate": 0.11965811965812,
+      "acceptGap": 29,
+      "acceptMonth": 9,
+      "acceptRate": 0.123931623931624,
       "acceptRank": 0,
       "closeCount": 11,
       "closeTarget": 35,
@@ -9690,7 +9683,7 @@ const DASHBOARD = {
         "26HN002026001",
         "2026年岳阳分公司岳阳县苍坪村费家大屋等基站光缆配套工程",
         "2026-05-06",
-        "工程已开工",
+        "一次性验收/终验已批复",
         "孙志祥",
         "岳阳县",
         "湖南省通信建设有限公司",
@@ -10700,7 +10693,7 @@ const DASHBOARD = {
         "26HN003756001",
         "2026年岳阳华容县DC机房及电源配套改造工程项目",
         "2026-07-29",
-        "工程已确认",
+        "设计委托已完成",
         "李力",
         "华容县",
         "湖南天辰建设有限责任公司",
@@ -10710,7 +10703,7 @@ const DASHBOARD = {
         "26HN003757001",
         "2026年岳阳平江县新城DC机房及电源配套建设项目",
         "2026-07-29",
-        "工程已确认",
+        "设计委托已完成",
         "李力",
         "平江县",
         "湖南天辰建设有限责任公司",
@@ -10750,7 +10743,7 @@ const DASHBOARD = {
         "26HN003797001",
         "2026年岳阳分公司岳阳县公田钥湘宾馆等基站光缆配套工程",
         "2026-07-30",
-        "设计委托已完成",
+        "一阶段设计已批复",
         "孙志祥",
         "岳阳县",
         "",
@@ -10850,7 +10843,7 @@ const DASHBOARD = {
         "26HN003824001",
         "2026年岳阳分公司岳阳楼区天伦东湖院等小CEO新建光缆工程",
         "2026-07-31",
-        "设计委托已完成",
+        "一阶段设计已批复",
         "丰中山",
         "岳阳楼区",
         "中国通信建设第三工程局有限公司",
@@ -11006,14 +10999,14 @@ const DASHBOARD = {
       {
         "name": "丰中山",
         "closedCount": 64,
-        "projectAmount": 756.293277,
-        "zhuanguAmount": 340.33197465,
+        "projectAmount": 756.26368,
+        "zhuanguAmount": 340.318656,
         "zhuanguDone": 195.159634,
-        "zhuanguRemain": 145.17234065,
-        "zhuanguRate": 0.344063411968335,
+        "zhuanguRemain": 145.15902199999996,
+        "zhuanguRate": 0.344076877172434,
         "rank": 5,
         "overdue": 0,
-        "target": 145.17234065
+        "target": 145.159022
       },
       {
         "name": "蒋志昭",
@@ -11054,36 +11047,36 @@ const DASHBOARD = {
       {
         "name": "孙志祥",
         "closedCount": 134,
-        "projectAmount": 2896.61285,
-        "zhuanguAmount": 1303.4757825,
+        "projectAmount": 2895.992903,
+        "zhuanguAmount": 1303.19680635,
         "zhuanguDone": 1076.785713,
-        "zhuanguRemain": 226.69006949999994,
-        "zhuanguRate": 0.495652804964944,
+        "zhuanguRemain": 226.4110933500001,
+        "zhuanguRate": 0.495758909668847,
         "rank": 1,
         "overdue": 0,
-        "target": 226.6900695
+        "target": 226.41109335
       },
       {
         "name": "曹毅",
         "closedCount": 100,
-        "projectAmount": 11776.253608,
-        "zhuanguAmount": 5299.3141236,
+        "projectAmount": 11769.958911,
+        "zhuanguAmount": 5296.48150995,
         "zhuanguDone": 3454.028178,
-        "zhuanguRemain": 1845.2859456,
-        "zhuanguRate": 0.391072666851486,
+        "zhuanguRemain": 1842.4533319500001,
+        "zhuanguRate": 0.391281816599708,
         "rank": 3,
         "overdue": 0,
-        "target": 1845.2859456
+        "target": 1842.45333195
       }
     ],
     "mgrTotal": {
       "closedCount": 686,
-      "projectAmount": 23969.805516,
-      "zhuanguAmount": 10786.4124822,
+      "projectAmount": 23962.861275,
+      "zhuanguAmount": 10783.28757375,
       "zhuanguDone": 7023.427601,
-      "zhuanguRemain": 3762.984881199999,
-      "zhuanguRate": 0.390681940594627,
-      "targetAmount": 3762.9848812
+      "zhuanguRemain": 3759.8599727499995,
+      "zhuanguRate": 0.390795157022277,
+      "targetAmount": 3759.85997275
     }
   }
 };
